@@ -8,12 +8,11 @@
 import Foundation
 import SwiftUI
 import AVFoundation
+import RealmSwift
 
 /// ImportFileManager позволяет выбирать аудиофайлы и импортировать их в приложение.
 struct ImportFileManager: UIViewControllerRepresentable {
-    
-    @Binding var songs: [SongModel]
-    
+        
     /// Coordinator управляет между задачами SwiftUI и UIKit.
     func makeCoordinator() -> Coordinator {
         Coordinator(parent: self)
@@ -39,13 +38,18 @@ struct ImportFileManager: UIViewControllerRepresentable {
     /// Coordinator служит связующим звеном между UIDocumentPicker и ImportFileManager.
     class Coordinator: NSObject, UIDocumentPickerDelegate {
         
+        // MARK: - Properties
         /// Ссылка на родительский компонент ImportFileManager, чтобы можно было с ним взаимодействовать.
         var parent: ImportFileManager
+        @ObservedResults(SongModel.self) var songs
         
+        // MARK: - Initializer
         init(parent: ImportFileManager) {
             self.parent = parent
         }
         
+        
+        // MARK: - Methods
         /// Метод вызывается когда пользователь выбирает файл.
         /// Метод обрабатывает выбраный URL, создает файл типом SongModel и после добавляет песню в массив songs.
         func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
@@ -71,7 +75,7 @@ struct ImportFileManager: UIViewControllerRepresentable {
                 let asset = AVURLAsset(url: url)
                 
                 /// Инициализируем объект SongModel.
-                var song = SongModel(name: url.lastPathComponent, data: document)
+                let song = SongModel(name: url.lastPathComponent, data: document)
                 
                 /// Цикл для итерации по метаданным аудиофайла, чтобы извлечь (испольнитель, обложка, название).
                 let metadata = asset.metadata
@@ -97,10 +101,9 @@ struct ImportFileManager: UIViewControllerRepresentable {
                 song.duration = CMTimeGetSeconds(asset.duration)
                 
                 /// Добавление песни в массив songs.
-                if !self.parent.songs.contains(where: {$0.data == song.data && $0.name == song.name}) {
-                    DispatchQueue.main.async {
-                        self.parent.songs.append(song)
-                    }
+                let isDuplicate = songs.contains(where: {$0.data == song.data && $0.name == song.name})
+                if !isDuplicate {
+                    $songs.append(song)
                 }
                 
             } catch {

@@ -6,10 +6,13 @@
 //
 
 import SwiftUI
+import RealmSwift
 
 struct WavesPlayer: View {
     // MARK: - Properties
     @StateObject var vm = ViewModel()
+    
+    @ObservedResults(SongModel.self) var songs
     
     @State var showFiles = false
     @State private var showFullPlayer = false
@@ -18,7 +21,7 @@ struct WavesPlayer: View {
     @Namespace private var playerAnimation
     
     private var frameImage: CGFloat {
-        showFullPlayer ? 320 : 50
+        showFullPlayer ? 320 : 60
     }
     
     // MARK: - Body
@@ -26,18 +29,18 @@ struct WavesPlayer: View {
         NavigationStack {
             ZStack {
                 // MARK: - Background
-                BackgroundView()
+                // BackgroundView()
                 
                 VStack {
                     // MARK: - List of Songs
                     List {
-                        ForEach(vm.songs) {song in
+                        ForEach(songs) {song in
                             SongCellView(song: song, durationFormatted: vm.durationFormatted)
                                 .onTapGesture {
                                     vm.playAudio(song: song)
                                 }
                         }
-                        .onDelete(perform: vm.deleteSong)
+                        .onDelete(perform: $songs.remove)
                     }
                     .listStyle(.plain)
                     
@@ -70,7 +73,7 @@ struct WavesPlayer: View {
             
             // MARK: - File's Sheet
             .sheet(isPresented: $showFiles) {
-                ImportFileManager(songs: $vm.songs)
+                ImportFileManager()
             }
         }
         
@@ -83,7 +86,35 @@ struct WavesPlayer: View {
             /// Mini Player
             HStack {
                 /// Cover
-                SongCoverView(coverData: vm.currentSong?.coverImage, size: frameImage)
+                
+                if let cover = vm.currentSong?.coverImage, let uiImage = UIImage(data: cover) {
+                    ZStack {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .frame(width: frameImage, height: frameImage)
+                            .aspectRatio(contentMode: .fill)
+                            .clipShape(.rect(cornerRadius: 5))
+                            .clipShape(.circle)
+                        
+                        Circle()
+                            .fill(.white)
+                            .frame(height: 10)
+                    }
+                    
+                } else {
+                    ZStack {
+                        Rectangle()
+                            .fill(.gray)
+                            .frame(width: frameImage, height: frameImage)
+                        Image(systemName: "music.note")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(height: frameImage / 2)
+                            .foregroundStyle(.white)
+                    }
+                    .clipShape(.rect(cornerRadius: 5))
+                }
+                
                 
                 if !showFullPlayer {
                     /// Description
@@ -99,9 +130,9 @@ struct WavesPlayer: View {
                     }
                 }
             }
-            .padding()
-            .background(showFullPlayer ? .clear : .black.opacity(0.3))
-            .clipShape(.rect(cornerRadius: 20))
+//            .padding()
+//            .background(showFullPlayer ? .clear : .black.opacity(0.3))
+//            .clipShape(.rect(cornerRadius: 20))
             .padding()
             
             /// Full Player

@@ -24,16 +24,17 @@ struct MiniPlayerView: View {
                 
             ZStack {
                 Circle()
-                    .stroke(lineWidth: 80)
-                    .fill(.linearGradient(colors: [.topBackground, .bottomBackground], startPoint: .topLeading, endPoint: .bottomTrailing))
-                    .frame(height: 40)
+                    .fill(.blue)
+                    .frame(height: 120)
                 
                 Circle()
-                    .stroke(lineWidth: 10)
                     .fill(.black.opacity(0.4))
-                    .frame(height: 30)
+                    .frame(height: 35)
+                
+                Circle()
+                    .fill(.red)
+                    .frame(height: 15)
             }
-            .padding(.leading, 40)
         }
         .padding(.horizontal, 30)
     }

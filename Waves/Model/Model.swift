@@ -6,12 +6,23 @@
 //
 
 import Foundation
+import RealmSwift
 
-struct SongModel: Identifiable {
-    var id = UUID()
-    var name: String
-    var artist: String?
-    var data: Data
-    var coverImage: Data?
-    var duration: TimeInterval?
+final class SongModel: Object, ObjectKeyIdentifiable {
+    @Persisted(primaryKey: true) var _id: ObjectId
+    @Persisted var name: String
+    @Persisted var artist: String?
+    @Persisted var data: Data
+    @Persisted var coverImage: Data?
+    @Persisted var duration: TimeInterval?
+    
+    convenience init(name: String, artist: String? = nil, data: Data, coverImage: Data? = nil, duration: TimeInterval? = nil) {
+        self.init()
+        self._id = _id
+        self.name = name
+        self.artist = artist
+        self.data = data
+        self.coverImage = coverImage
+        self.duration = duration
+    }
 }
