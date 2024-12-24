@@ -29,20 +29,18 @@ extension Text {
             .font(
                 .system(
                     size: 16,
-                    weight: .semibold,
-                    design: .rounded
+                    weight: .semibold
                 )
             )
     }
-    
+
     func artistFont() -> some View {
         self
             .foregroundStyle(.white)
             .font(
                 .system(
                     size: 14,
-                    weight: .light,
-                    design: .rounded
+                    weight: .light
                 )
             )
     }

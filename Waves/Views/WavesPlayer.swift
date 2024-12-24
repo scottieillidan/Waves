@@ -11,41 +11,67 @@ import RealmSwift
 struct WavesPlayer: View {
     // MARK: - Properties
     @StateObject var vm = ViewModel()
-    
+
     @ObservedResults(SongModel.self) var songs
-    
+
     @State var showFiles = false
     @State private var showFullPlayer = false
     @State private var isDragging = false
-    
+
     @Namespace private var playerAnimation
-    
+
     private var frameImage: CGFloat {
         showFullPlayer ? 320 : 60
     }
-    
+
     // MARK: - Body
     var body: some View {
         NavigationStack {
             ZStack {
                 // MARK: - Background
-                // BackgroundView()
-                
+                BackgroundView()
+
                 VStack {
                     // MARK: - List of Songs
                     List {
                         ForEach(songs) {song in
+                            let url = URL(fileURLWithPath: song.path)
                             SongCellView(song: song, durationFormatted: vm.durationFormatted)
                                 .onTapGesture {
                                     vm.playAudio(song: song)
                                 }
+                                .contextMenu {
+                                    /// Edit Metadata.
+                                    NavigationLink {
+                                        EditSongMetaData(editMetaData: vm.editMetaData, song: song)
+                                    } label: {
+                                        Label("Edit", systemImage: "square.and.pencil")
+                                    }
+
+                                    /// Share.
+                                    ShareLink(
+                                        "Share",
+                                        item: url,
+                                        preview:
+                                            SharePreview(
+                                                "\(url.lastPathComponent)",
+                                                icon: Image(systemName: "music.note")
+                                            )
+                                    )
+                                }
                         }
-                        .onDelete(perform: $songs.remove)
+                        .onDelete { offsets in
+                            vm.deleteSongFile(atOffsets: offsets)
+                            if vm.isPlaying {
+                                vm.stopAudio()
+                            }
+                            $songs.remove(atOffsets: offsets)
+                        }
                     }
                     .listStyle(.plain)
-                    
+
                     Spacer()
-                    
+
                     // MARK: - Player
                     if vm.currentSong != nil {
                         Player()
@@ -70,81 +96,52 @@ struct WavesPlayer: View {
                     }
                 }
             }
-            
+
             // MARK: - File's Sheet
             .sheet(isPresented: $showFiles) {
                 ImportFileManager()
             }
         }
-        
-        
+
     }
-    
+
     // MARK: - Methods
     private func Player() -> some View {
         VStack {
             /// Mini Player
             HStack {
                 /// Cover
-                
-                if let cover = vm.currentSong?.coverImage, let uiImage = UIImage(data: cover) {
-                    ZStack {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .frame(width: frameImage, height: frameImage)
-                            .aspectRatio(contentMode: .fill)
-                            .clipShape(.rect(cornerRadius: 5))
-                            .clipShape(.circle)
-                        
-                        Circle()
-                            .fill(.white)
-                            .frame(height: 10)
-                    }
-                    
-                } else {
-                    ZStack {
-                        Rectangle()
-                            .fill(.gray)
-                            .frame(width: frameImage, height: frameImage)
-                        Image(systemName: "music.note")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(height: frameImage / 2)
-                            .foregroundStyle(.white)
-                    }
-                    .clipShape(.rect(cornerRadius: 5))
-                }
-                
-                
+                SongCoverView(coverData: vm.currentSong?.coverImage, size: frameImage)
+
                 if !showFullPlayer {
                     /// Description
                     VStack(alignment: .leading) {
                         SongDescription()
                     }
                     .matchedGeometryEffect(id: "Description", in: playerAnimation)
-                    
+
                     Spacer()
-                    
+
                     CustomButtom(image: vm.isPlaying ? "pause.fill" : "play.fill", size: .title) {
                         vm.playPause()
                     }
                 }
             }
-//            .padding()
-//            .background(showFullPlayer ? .clear : .black.opacity(0.3))
-//            .clipShape(.rect(cornerRadius: 20))
+            //            .padding()
+            //            .background(showFullPlayer ? .clear : .black.opacity(0.3))
+            //            .clipShape(.rect(cornerRadius: 20))
             .padding()
-            
+
             /// Full Player
             if showFullPlayer {
-                
+
                 /// Description
                 VStack {
                     SongDescription()
                 }
                 .matchedGeometryEffect(id: "Description", in: playerAnimation)
                 .padding(.top)
-                
+
                 VStack {
                     /// Duration
                     HStack {
@@ -154,7 +151,7 @@ struct WavesPlayer: View {
                     }
                     .padding()
                     .durationFont()
-                    
+
                     /// Slider
                     Slider(value: $vm.currentTime, in: 0...vm.totalTime) { editing in
                         isDragging = editing
@@ -171,7 +168,7 @@ struct WavesPlayer: View {
                             }
                         }
                     }
-                    
+
                     HStack(spacing: 40) {
                         CustomButtom(image: "backward.end.fill", size: .title2) {
                             vm.backward()
@@ -188,18 +185,24 @@ struct WavesPlayer: View {
             }
         }
     }
-    
+
     @ViewBuilder
     private func SongDescription() -> some View {
         if let currentSong = vm.currentSong {
             Text(currentSong.name)
                 .nameFont()
-            Text(currentSong.artist ?? "Unknown Artist")
-                .artistFont()
+            HStack(spacing: 0) {
+                Text(currentSong.artist ?? "Unknown Artist")
+                    .artistFont()
+                if let album = currentSong.album, album != "" {
+                    Text("\(" - " + album)")
+                        .artistFont()
+                }
+            }
         }
     }
-    
-    private func CustomButtom(image: String, size: Font, action: @escaping () -> ()) -> some View {
+
+    private func CustomButtom(image: String, size: Font, action: @escaping () -> Void) -> some View {
         Button {
             action()
         } label: {
@@ -209,7 +212,6 @@ struct WavesPlayer: View {
         }
     }
 }
-
 
 #Preview {
     WavesPlayer()

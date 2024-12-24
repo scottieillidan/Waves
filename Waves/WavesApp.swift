@@ -13,7 +13,7 @@ struct WavesApp: App {
         WindowGroup {
             // let _ = print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.path())
             WavesPlayer()
-                .colorScheme(.dark)
+                // .colorScheme(.dark)
         }
     }
 }

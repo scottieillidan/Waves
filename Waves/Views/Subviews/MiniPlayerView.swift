@@ -21,16 +21,14 @@ struct MiniPlayerView: View {
                     .offset(x: 40)
                 })
                 .padding(.leading, 90)
-                
+
             ZStack {
                 Circle()
                     .fill(.blue)
                     .frame(height: 120)
-                
                 Circle()
                     .fill(.black.opacity(0.4))
                     .frame(height: 35)
-                
                 Circle()
                     .fill(.red)
                     .frame(height: 15)

@@ -11,13 +11,13 @@ struct SongCellView: View {
     // MARK: - Properties
     let song: SongModel
     let durationFormatted: (TimeInterval) -> String
-    
+
     // MARK: - Body
     var body: some View {
         HStack {
             /// Cover
             SongCoverView(coverData: song.coverImage, size: 60)
-            
+
             /// Description
             VStack(alignment: .leading) {
                 Text(song.name)
@@ -25,9 +25,9 @@ struct SongCellView: View {
                 Text(song.artist ?? "Unknown artist")
                     .artistFont()
             }
-            
+
             Spacer()
-            
+
             /// Duration
             if let duration = song.duration {
                 Text(durationFormatted(duration))

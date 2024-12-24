@@ -1,6 +1,15 @@
 {
-  "originHash" : "2ed69ae7313cb03b0b7d20c9cc45cb4ea2c3c1d9c872ab4fc7d828177aaeca5b",
+  "originHash" : "5f41ce218aa2a1e304ed2d95f8f25ea7af8080658755c4a9b46e143042801efe",
   "pins" : [
+    {
+      "identity" : "id3tageditor",
+      "kind" : "remoteSourceControl",
+      "location" : "git@github.com:chicio/ID3TagEditor.git",
+      "state" : {
+        "revision" : "64f5667df0e779f2f02a08b7084b0cb5bd83ce61",
+        "version" : "5.2.0"
+      }
+    },
     {
       "identity" : "realm-core",
       "kind" : "remoteSourceControl",

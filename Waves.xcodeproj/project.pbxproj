@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		16529B342CF70DAE00CF4596 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 16529B332CF70DAE00CF4596 /* RealmSwift */; };
 		16529B352CF7244C00CF4596 /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 16529B332CF70DAE00CF4596 /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		16C440632CF9DB7E00C70049 /* ID3TagEditor in Frameworks */ = {isa = PBXBuildFile; productRef = 16C440622CF9DB7E00C70049 /* ID3TagEditor */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -56,6 +57,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				16529B342CF70DAE00CF4596 /* RealmSwift in Frameworks */,
+				16C440632CF9DB7E00C70049 /* ID3TagEditor in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -89,6 +91,7 @@
 				1600EE832CE9E4B800ED2619 /* Frameworks */,
 				1600EE842CE9E4B800ED2619 /* Resources */,
 				16529B362CF7244C00CF4596 /* Embed Frameworks */,
+				162A0BEB2D17F6AF006506FB /* Run Script */,
 			);
 			buildRules = (
 			);
@@ -100,6 +103,7 @@
 			name = Waves;
 			packageProductDependencies = (
 				16529B332CF70DAE00CF4596 /* RealmSwift */,
+				16C440622CF9DB7E00C70049 /* ID3TagEditor */,
 			);
 			productName = Waves;
 			productReference = 1600EE862CE9E4B800ED2619 /* Waves.app */;
@@ -131,6 +135,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				16529B322CF70DAE00CF4596 /* XCRemoteSwiftPackageReference "realm-swift" */,
+				16C440612CF9DB7E00C70049 /* XCRemoteSwiftPackageReference "ID3TagEditor" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 1600EE872CE9E4B800ED2619 /* Products */;
@@ -151,6 +156,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		162A0BEB2D17F6AF006506FB /* Run Script */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "#export PATH=\"$PATH:/opt/homebrew/bin\"\n\n#if which swiftlint >/dev/null; then\n#  swiftlint\n#else\n#  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\n#fi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		1600EE822CE9E4B800ED2619 /* Sources */ = {
@@ -289,6 +316,7 @@
 				DEVELOPMENT_TEAM = AFNQR6B3ZJ;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Waves/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -330,6 +358,7 @@
 				DEVELOPMENT_TEAM = AFNQR6B3ZJ;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Waves/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -391,6 +420,14 @@
 				kind = branch;
 			};
 		};
+		16C440612CF9DB7E00C70049 /* XCRemoteSwiftPackageReference "ID3TagEditor" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "git@github.com:chicio/ID3TagEditor.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.2.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -398,6 +435,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 16529B322CF70DAE00CF4596 /* XCRemoteSwiftPackageReference "realm-swift" */;
 			productName = RealmSwift;
+		};
+		16C440622CF9DB7E00C70049 /* ID3TagEditor */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 16C440612CF9DB7E00C70049 /* XCRemoteSwiftPackageReference "ID3TagEditor" */;
+			productName = ID3TagEditor;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

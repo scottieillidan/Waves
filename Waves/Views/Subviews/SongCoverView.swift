@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct SongCoverView: View {
-    
+
     // MARK: - Properties
     let coverData: Data?
     let size: CGFloat
-    
+
     // MARK: - Body
     var body: some View {
         if let cover = coverData, let uiImage = UIImage(data: cover) {
