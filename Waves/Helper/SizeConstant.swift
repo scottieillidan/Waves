@@ -8,6 +8,14 @@
 import UIKit
 
 struct SizeConstant {
-    static let miniPlayer: CGFloat = 70
-    static let fullPlayer: CGFloat = UIScreen.main.bounds.height + 250
+    // MARK: - Player
+    static let miniPlayer: CGFloat = 60
+    static let fullPlayer: CGFloat = 320
+
+    // MARK: - Screen
+    static let screenHeight: CGFloat = UIScreen.main.bounds.height
+    static let screenWidth: CGFloat = UIScreen.main.bounds.width
+
+    // MARK: - Corner Radius
+    static let cornerRadius: CGFloat = 5
 }

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SongCellView: View {
     // MARK: - Properties
+    @EnvironmentObject var vm: ViewModel
     let song: SongModel
     let durationFormatted: (TimeInterval) -> String
 
@@ -20,25 +21,23 @@ struct SongCellView: View {
 
             /// Description
             VStack(alignment: .leading) {
-                Text(song.name)
-                    .nameFont()
+                Text(song.title)
+                    .titleFont(isSelected: vm.currentSong?.id == song.id)
                 Text(song.artist ?? "Unknown artist")
-                    .artistFont()
+                    .bodyFont(isSelected: vm.currentSong?.id == song.id)
             }
 
             Spacer()
 
-            /// Duration
-            if let duration = song.duration {
-                Text(durationFormatted(duration))
-                    .artistFont()
+            if let currentSong = vm.currentSong, currentSong.id == song.id {
+                MiniWavesView(isPlaying: $vm.isPlaying)
+            } else {
+                /// Duration
+                if let duration = song.duration {
+                    Text(durationFormatted(duration))
+                        .bodyFont()
+                }
             }
         }
-        .listRowBackground(Color.clear)
-        .listRowSeparator(.hidden)
     }
-}
-
-#Preview {
-    WavesPlayer()
 }

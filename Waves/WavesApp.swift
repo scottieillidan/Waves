@@ -11,9 +11,8 @@ import SwiftUI
 struct WavesApp: App {
     var body: some Scene {
         WindowGroup {
-            // let _ = print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.path())
             WavesPlayer()
-                // .colorScheme(.dark)
+                .preferredColorScheme(.dark)
         }
     }
 }

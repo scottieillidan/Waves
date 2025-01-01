@@ -67,11 +67,9 @@ struct ImportFileManager: UIViewControllerRepresentable {
 
                         let destinationURL = documentDirectoryURL?.appendingPathComponent(url.lastPathComponent)
 
-                        let path = destinationURL!.path
-
                         /// Перемещение файла в каталог, доступный приложению.
                         /// Таким образом, нам не придеться спрашивать разрешения на воспроизведение.
-                        if !FileManager.default.fileExists(atPath: path) {
+                        if !FileManager.default.fileExists(atPath: destinationURL!.path) {
                             URLSession.shared.downloadTask(with: url) { location, _, error in
                                 guard let location = location, error == nil else { return }
                                 do {
@@ -82,16 +80,20 @@ struct ImportFileManager: UIViewControllerRepresentable {
                             }.resume()
                         }
 
-                        /// Создание AVURLAsset для извлечения метаданных.
-                        let asset = AVURLAsset(url: url)
+                        let fileName = destinationURL!.lastPathComponent
 
                         /// Инициализируем объект SongModel.
-                        let song = SongModel(name: destinationURL!.lastPathComponent, url: destinationURL!.absoluteString, path: path)
+                        let song = SongModel(title: fileName, fileName: fileName)
+
+                        loadFileInfo(song: song, path: url.path)
+
+                        /// Создание AVURLAsset для извлечения метаданных.
+                        let asset = AVURLAsset(url: url)
 
                         await loadSongMetaData(from: asset, to: song)
 
                         /// Добавление песни в массив songs.
-                        let isDuplicate = songs.contains(where: {$0.url == song.url && $0.name == song.name})
+                        let isDuplicate = songs.contains(where: {$0.fileName == song.fileName})
                         if !isDuplicate {
                             $songs.append(song)
                         }
@@ -115,7 +117,7 @@ struct ImportFileManager: UIViewControllerRepresentable {
                     case AVMetadataKey.commonKeyArtist.rawValue:
                         song.artist = value as? String
                     case AVMetadataKey.commonKeyTitle.rawValue:
-                        song.name = value as? String ?? song.name
+                        song.title = value as? String ?? song.title
                     case AVMetadataKey.commonKeyAlbumName.rawValue:
                         song.album = value as? String
                     case AVMetadataKey.commonKeyArtwork.rawValue:
@@ -125,8 +127,23 @@ struct ImportFileManager: UIViewControllerRepresentable {
                     }
                 }
 
-                /// Получения продолжительности песни.
+                /// Получения продолжительности аудио.
                 song.duration = try await CMTimeGetSeconds(asset.load(.duration))
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
+
+        func loadFileInfo(song: SongModel, path: String) {
+            do {
+                /// Создание attr для извлечения информации о файле.
+                let attr = try FileManager.default.attributesOfItem(atPath: path)
+                let size = attr[.size] as? Int64 ?? 0
+                let creationDate = attr[.creationDate] as? Date ?? Date()
+                let filename: NSString = path as NSString
+                song.fileExtension = filename.pathExtension.uppercased()
+                song.size = size
+                song.creationDate = creationDate
             } catch {
                 print(error.localizedDescription)
             }

@@ -10,7 +10,6 @@ import SwiftUI
 struct DurationFontModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .foregroundStyle(.white)
             .font(.system(size: 14, weight: .light, design: .rounded))
     }
 }
@@ -23,35 +22,37 @@ extension View {
 }
 
 extension Text {
-    func nameFont() -> some View {
+    func titleFont(isSelected: Bool = false) -> some View {
         self
-            .foregroundStyle(.white)
+            .foregroundStyle(isSelected ? .accent : .white)
             .font(
                 .system(
                     size: 16,
                     weight: .semibold
                 )
             )
+            .lineLimit(1)
     }
 
-    func artistFont() -> some View {
+    func bodyFont(isSelected: Bool = false) -> some View {
         self
-            .foregroundStyle(.white)
+            .foregroundStyle(isSelected ? .accent : .white)
             .font(
                 .system(
                     size: 14,
                     weight: .light
                 )
             )
+            .lineLimit(1)
     }
 }
 
 struct FontExtension: View {
     var body: some View {
         Text("Name Font")
-            .nameFont()
+            .titleFont()
         Text("Artist Font")
-            .artistFont()
+            .bodyFont()
         HStack {
             Text("00:00")
             Spacer()

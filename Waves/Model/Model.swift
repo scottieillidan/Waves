@@ -10,25 +10,26 @@ import RealmSwift
 
 final class SongModel: Object, ObjectKeyIdentifiable {
     @Persisted(primaryKey: true) var id: ObjectId
-    @Persisted var name: String
+    @Persisted var title: String
     @Persisted var album: String?
     @Persisted var artist: String?
-    @Persisted var url: String
-    @Persisted var path: String
-    @Persisted var coverImage: Data?
     @Persisted var duration: TimeInterval?
+    @Persisted var coverImage: Data?
+    @Persisted var fileName: String
+    @Persisted var fileExtension: String?
+    @Persisted var size: Int64?
+    @Persisted var creationDate: Date?
 
-convenience init(name: String, album: String? = nil, artist: String? = nil,
-                 url: String, path: String, coverImage: Data? = nil,
-                 duration: TimeInterval? = nil) {
+    convenience init(title: String, album: String? = nil, artist: String? = nil, duration: TimeInterval? = nil, coverImage: Data? = nil, fileName: String, fileExtension: String? = nil, size: Int64? = nil, creationDate: Date? = nil) {
         self.init()
-        self.id = id
-        self.name = name
+        self.title = title
         self.album = album
         self.artist = artist
-        self.url = url
-        self.path = path
-        self.coverImage = coverImage
         self.duration = duration
+        self.coverImage = coverImage
+        self.fileName = fileName
+        self.fileExtension = fileExtension
+        self.size = size
+        self.creationDate = creationDate
     }
 }

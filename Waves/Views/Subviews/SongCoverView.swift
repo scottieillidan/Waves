@@ -18,21 +18,15 @@ struct SongCoverView: View {
         if let cover = coverData, let uiImage = UIImage(data: cover) {
             Image(uiImage: uiImage)
                 .resizable()
-                .frame(width: size, height: size)
                 .aspectRatio(contentMode: .fill)
-                .clipShape(.rect(cornerRadius: 5))
+                .frame(width: size, height: size)
+                .clipShape(.rect(cornerRadius: SizeConstant.cornerRadius))
         } else {
-            ZStack {
-                Rectangle()
-                    .fill(.gray)
-                    .frame(width: size, height: size)
-                Image(systemName: "music.note")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(height: size / 2)
-                    .foregroundStyle(.white)
-            }
-            .clipShape(.rect(cornerRadius: 5))
+            Image("Waves")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: size, height: size)
+                .clipShape(.rect(cornerRadius: SizeConstant.cornerRadius))
         }
     }
 }
