@@ -16,11 +16,11 @@ final class SongModel: Object, ObjectKeyIdentifiable {
     @Persisted var duration: TimeInterval?
     @Persisted var coverImage: Data?
     @Persisted var fileName: String
-    @Persisted var fileExtension: String?
+    @Persisted var fileExtension: String
     @Persisted var size: Int64?
     @Persisted var creationDate: Date?
 
-    convenience init(title: String, album: String? = nil, artist: String? = nil, duration: TimeInterval? = nil, coverImage: Data? = nil, fileName: String, fileExtension: String? = nil, size: Int64? = nil, creationDate: Date? = nil) {
+    convenience init(title: String, album: String? = nil, artist: String? = nil, duration: TimeInterval? = nil, coverImage: Data? = nil, fileName: String, fileExtension: String = "MP3", size: Int64? = nil, creationDate: Date? = nil) {
         self.init()
         self.title = title
         self.album = album

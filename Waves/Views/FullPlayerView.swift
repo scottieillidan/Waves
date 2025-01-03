@@ -36,7 +36,7 @@ struct FullPlayerView: View {
                 }
                 .onAppear {
                     Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-                        if !isDragging {
+                        if !isDragging && vm.isPlaying {
                             vm.updateProgress()
                         }
                     }

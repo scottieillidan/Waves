@@ -23,55 +23,49 @@ struct WavesPlayer: View {
     // MARK: - Body
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .bottom) {
-                // MARK: - List of Songs
-                List {
-                    ForEach(songs) {song in
-                        let url = vm.getSongFileURL(song)!
-                        Button {
-                            vm.playAudio(song: song)
-                        } label: {
-                            SongCellView(song: song, durationFormatted: vm.durationFormatted)
+            // MARK: - List of Songs
+            List {
+                ForEach(songs) {song in
+                    let url = vm.getSongFileURL(song)!
+                    Button {
+                        vm.playAudio(song: song)
+                    } label: {
+                        SongCellView(song: song, durationFormatted: vm.durationFormatted)
+                            .environmentObject(vm)
+                    }
+                    .contextMenu {
+                        /// Edit Metadata.
+                        NavigationLink {
+                            EditSongMetadata(song: song)
                                 .environmentObject(vm)
+                                .ignoresSafeArea(edges: Edge.Set(.bottom))
+                        } label: {
+                            Label("Edit Metadata", systemImage: "square.and.pencil")
                         }
-                        .contextMenu {
-                            /// Edit Metadata.
-                            NavigationLink {
-                                EditSongMetadata(song: song)
-                                    .environmentObject(vm)
-                            } label: {
-                                Label("Edit Metadata", systemImage: "square.and.pencil")
-                            }
 
-                            /// Share.
-                            ShareLink(
-                                "Share",
-                                item: url
-                            )
-                        }
-                        .listRowBackground(Color.clear)
-                        .listRowSeparator(.hidden)
+                        /// Share.
+                        ShareLink(
+                            "Share",
+                            item: url
+                        )
                     }
-                    .onDelete { offsets in
-                        if vm.isPlaying {
-                            if vm.currentIndex == offsets.first! {
-                                vm.stopAudio()
-                            } else if offsets.first! < vm.currentIndex! {
-                                vm.currentIndex! -= 1
-                            }
-                        }
-                        vm.deleteSongFile(atOffsets: offsets)
-                        $songs.remove(atOffsets: offsets)
-                    }
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
                 }
-                .listStyle(.plain)
-                .padding(.bottom, 30)
-                .padding(.bottom, vm.currentSong != nil ? SizeConstant.miniPlayer + 10 : 0)
-                .scrollIndicators(.hidden)
-
-                Spacer()
-
-                // MARK: - Player
+                .onDelete { offsets in
+                    if vm.isPlaying {
+                        if vm.currentIndex == offsets.first! {
+                            vm.stopAudio()
+                        } else if offsets.first! < vm.currentIndex! {
+                            vm.currentIndex! -= 1
+                        }
+                    }
+                    vm.deleteSongFile(atOffsets: offsets)
+                    $songs.remove(atOffsets: offsets)
+                }
+            }
+            // MARK: - Mini Player
+            .safeAreaInset(edge: .bottom) {
                 if vm.currentSong != nil && !showFullPlayer {
                     Button {
                         withAnimation {
@@ -80,9 +74,12 @@ struct WavesPlayer: View {
                     } label: {
                         MiniPlayer()
                     }
+                    .background(.thinMaterial)
                 }
             }
-            .ignoresSafeArea(edges: Edge.Set(.bottom))
+            // MARK: - List
+            .listStyle(.plain)
+            .scrollIndicators(.hidden)
             // MARK: - Background
             .background(.darkBG)
             // MARK: - Navigation Bar
@@ -134,10 +131,8 @@ struct WavesPlayer: View {
                 vm.playPause()
             }
         }
-        .padding(.vertical, 10)
-        .padding(.horizontal)
-        .background(.ultraThinMaterial)
         .frame(height: SizeConstant.miniPlayer)
-        .padding(.vertical, 30)
+        .padding(.horizontal)
+        .padding(.top)
     }
 }

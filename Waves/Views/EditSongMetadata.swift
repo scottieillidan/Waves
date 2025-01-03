@@ -21,44 +21,42 @@ struct EditSongMetadata: View {
     @State private var album: String = ""
     @State private var artist: String = ""
 
+    let unsuppportedFileExtensions = ["WAV"]
+
     // MARK: - Body
     var body: some View {
-        var bitrate: Int {
-            let kbit = UInt64(song.size!) / 128
-            let kbps = ceil(round(Double(kbit)/Double(song.duration!))/16)*16
-            return Int(kbps)
-        }
-        let labels: [String] = ["Format", "Duration", "Bitrate", "Size", "Created"]
+        let extensionCondition = unsuppportedFileExtensions.contains(song.fileExtension)
+        let labels: [String] = ["Format", "Duration", "Size", "Created"]
         let values: [String] = [
-            "\(song.fileExtension!)",
+            "\(song.fileExtension)",
             "\(vm.durationFormatted(song.duration!))",
-            "\(bitrate) Kbps",
             "\(ByteCountFormatter.string(fromByteCount: song.size!, countStyle: .file))",
             "\(vm.creationDateFormatted(song.creationDate!))"
         ]
 
-        VStack(spacing: 20) {
-            /// Cover
-            PhotosPicker(selection: $photosPickerItem, matching: .images) {
-                SongCoverView(coverData: coverImage, size: SizeConstant.fullPlayer * 0.8)
-            }
-            /// Metadata
-            VStack(spacing: 0) {
-                CustomTextField("Title", text: $title)
-                Divider()
-                CustomTextField("Artist", text: $artist)
-                Divider()
-                CustomTextField("Album", text: $album)
-            }
-            .background(.quinary)
-            .clipShape(.rect(cornerRadius: SizeConstant.cornerRadius))
+        ScrollView(.vertical) {
+            VStack(spacing: 20) {
 
-            Button {
-                Task {
+                /// Cover
+                PhotosPicker(selection: $photosPickerItem, matching: .images) {
+                    SongCoverView(coverData: coverImage, size: SizeConstant.fullPlayer * 0.8)
+                }
+                /// Metadata
+                VStack(spacing: 0) {
+                    CustomTextField("Title", text: $title)
+                    Divider()
+                    CustomTextField("Artist", text: $artist)
+                    Divider()
+                    CustomTextField("Album", text: $album)
+                }
+                .background(.quinary)
+                .clipShape(.rect(cornerRadius: SizeConstant.cornerRadius))
+
+                Button {
                     let newSong = SongModel(
-                        title: title,
-                        album: album,
-                        artist: artist,
+                        title: title.isEmpty ? song.title : title,
+                        album: album.isEmpty ? "Unknown Album" : album,
+                        artist: artist.isEmpty ? "Unknown Artist" : artist,
                         duration: song.duration,
                         coverImage: coverImage,
                         fileName: song.fileName,
@@ -66,42 +64,74 @@ struct EditSongMetadata: View {
                         size: song.size,
                         creationDate: song.creationDate
                     )
-                    vm.editMetaData(from: newSong, to: song)
+                    if extensionCondition {
+                        Task {
+                            await vm.updateSongMetadata(from: newSong, to: song)
+                        }
+                    } else {
+                        vm.editMetaData(from: newSong, to: song)
+                    }
                     dismiss()
+                } label: {
+                    Text("Save")
+                        .padding(.vertical, 12)
+                        .frame(maxWidth: .infinity)
                 }
-            } label: {
-                Text("Save")
-                    .padding(.vertical, 12)
-                    .frame(maxWidth: .infinity)
-            }
-            .background(.quinary)
-            .clipShape(.rect(cornerRadius: SizeConstant.cornerRadius))
+                .background(.quinary)
+                .clipShape(.rect(cornerRadius: SizeConstant.cornerRadius))
 
-            /// Additional Audio Information.
-            VStack(spacing: 0) {
-                ForEach(labels.indices, id: \.self) { i in
-                    HStack {
-                        Text(labels[i])
-                            .bodyFont()
-                        Spacer()
-                        Text(values[i])
-                            .titleFont()
-                    }
-                    .padding(10)
-                    if i != labels.count - 1 {
-                        Divider()
+                /// Additional Audio Information.
+                VStack(spacing: 0) {
+                    ForEach(labels.indices, id: \.self) { i in
+                        HStack {
+                            Text(labels[i])
+                                .bodyFont()
+                            Spacer()
+                            Text(values[i])
+                                .titleFont()
+                        }
+                        .padding(10)
+                        if i != labels.count - 1 {
+                            Divider()
+                        }
                     }
                 }
+                .opacity(0.8)
             }
-            .opacity(0.8)
-            Spacer()
+            // MARK: - Background
+            .padding()
         }
-        // MARK: - Navigation Bar
-        .navigationTitle(song.title)
-        .navigationBarTitleDisplayMode(.inline)
-        // MARK: - Background
-        .padding()
         .background(.darkBG)
+        .safeAreaInset(edge: .bottom, alignment: .leading, content: {
+            if extensionCondition {
+                VStack {
+                    Text("Unsuppported Extension: \(song.fileExtension).")
+                        .titleFont(isSelected: true)
+                    Text("The file metadata will not be edited.")
+                        .bodyFont(isSelected: true)
+                }
+                .padding(.vertical, 20)
+                .padding(.bottom)
+                .frame(maxWidth: .infinity)
+                .background(.thinMaterial)
+            }
+        })
+        .scrollIndicators(.hidden)
+        // MARK: - Navigation Bar
+        .navigationTitle("Edit Metadata")
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden()
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "chevron.left.circle.fill")
+                        .font(.title2)
+                }
+            }
+        }
+        .toolbarBackground(.darkBG, for: .navigationBar)
         // MARK: - Methods
         .onChange(of: photosPickerItem) { _ in
             Task {
@@ -117,7 +147,7 @@ struct EditSongMetadata: View {
             self.title = song.title
             self.album = song.album ?? self.album
             self.artist = song.artist ?? self.artist
-            self.coverImage = song.coverImage ?? nil
+            self.coverImage = song.coverImage ?? UIImage(named: "Waves")?.jpegData(compressionQuality: 1.0)
         }
 
     }

@@ -195,11 +195,15 @@ final class ViewModel: NSObject, ObservableObject, AVAudioPlayerDelegate {
     private func setupRemoteControlCenter() {
 
         remoteControlCenter.playCommand.addTarget { [weak self] _ in
+            self?.updateProgress()
+            self?.updateNowPlayingInfo()
             self?.playPause()
             return .success
         }
 
         remoteControlCenter.pauseCommand.addTarget { [weak self] _ in
+            self?.updateProgress()
+            self?.updateNowPlayingInfo()
             self?.playPause()
             return .success
         }
@@ -245,10 +249,12 @@ final class ViewModel: NSObject, ObservableObject, AVAudioPlayerDelegate {
 
         var nowPlayingInfo: [String: Any] = [
             MPMediaItemPropertyTitle: song.title,
-            MPMediaItemPropertyArtist: song.artist as AnyObject,
-            MPMediaItemPropertyPlaybackDuration: song.duration as AnyObject,
+            MPMediaItemPropertyArtist: song.artist ?? "Unknown Artist" as CFString,
+            MPMediaItemPropertyAlbumTitle: song.album ?? "Unknown Album" as CFString,
+            MPMediaItemPropertyPlaybackDuration: song.duration as Any,
 
-            MPNowPlayingInfoPropertyElapsedPlaybackTime: self.currentTime as AnyObject
+            MPNowPlayingInfoPropertyPlaybackRate: 1.0,
+            MPNowPlayingInfoPropertyElapsedPlaybackTime: self.currentTime
         ]
 
         let artwork = (song.coverImage != nil ? UIImage(data: song.coverImage!) : UIImage(named: "Waves"))!
@@ -296,8 +302,8 @@ final class ViewModel: NSObject, ObservableObject, AVAudioPlayerDelegate {
             let id3TagEditor = ID3TagEditor()
             let id3Tag = ID32v2TagBuilder()
                 .title(frame: ID3FrameWithStringContent(content: newSong.title))
-                .album(frame: ID3FrameWithStringContent(content: newSong.album ?? "Unknown Album"))
-                .artist(frame: ID3FrameWithStringContent(content: newSong.artist ?? "Unknown Artist"))
+                .album(frame: ID3FrameWithStringContent(content: newSong.album!))
+                .artist(frame: ID3FrameWithStringContent(content: newSong.artist!))
                 .attachedPicture(pictureType: .frontCover,
                                  frame: ID3FrameAttachedPicture(picture: newSong.coverImage!,
                                                                 type: .frontCover, format: .jpeg))
@@ -314,7 +320,7 @@ final class ViewModel: NSObject, ObservableObject, AVAudioPlayerDelegate {
         }
     }
 
-    private func updateSongMetadata(from newSong: SongModel, to oldSong: SongModel) async {
+    func updateSongMetadata(from newSong: SongModel, to oldSong: SongModel) async {
         do {
             if let currentSong = try await Realm().object(ofType: SongModel.self, forPrimaryKey: oldSong.id) {
                 try await Realm().write {

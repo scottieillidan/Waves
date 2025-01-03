@@ -13,14 +13,17 @@ func SongDescription(_ song: SongModel?, alignment: HorizontalAlignment = .leadi
         VStack(alignment: alignment, spacing: spacing) {
             Text(currentSong.title)
                 .titleFont()
-            HStack(spacing: 0) {
-                Text(currentSong.artist ?? "Unknown Artist")
-                    .bodyFont()
-                if let album = currentSong.album, album != "" {
-                    Text("\(" - " + album)")
+            if let artist = currentSong.artist {
+                HStack(spacing: 0) {
+                    Text(artist)
                         .bodyFont()
+                    if let album = currentSong.album {
+                        Text("\(" - " + album)")
+                            .bodyFont()
+                    }
                 }
             }
+
         }
     }
 }

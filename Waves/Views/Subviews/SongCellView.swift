@@ -23,8 +23,10 @@ struct SongCellView: View {
             VStack(alignment: .leading) {
                 Text(song.title)
                     .titleFont(isSelected: vm.currentSong?.id == song.id)
-                Text(song.artist ?? "Unknown artist")
-                    .bodyFont(isSelected: vm.currentSong?.id == song.id)
+                if let artist = song.artist {
+                    Text(artist)
+                        .bodyFont(isSelected: vm.currentSong?.id == song.id)
+                }
             }
 
             Spacer()
